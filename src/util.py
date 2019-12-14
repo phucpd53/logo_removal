@@ -21,5 +21,17 @@ def reconstruct(y_pred, y_true, mask):
     y_true: input image with logo. SHAPE = [HEIGHT, WIDTH, 3]
     mask: a binary image with logo region is 0, otherwise 1. SHAPE = [HEIGHT, WIDTH, 1]
     '''
+    mask = cv2.gaussian_blur(mask, (3, 3), 0)
     mask_3D = np.dstack([mask, mask, mask])
-    return y_pred * (1 - mask) + y_true * mask
+    return (y_pred * (1 - mask_3D) + y_true * mask_3D).astype(np.uint8)
+
+def generate_x(height, width):
+    '''
+    generate a fix matrix as below. SHAPE = [HEIGHT, WIDTH, 2]
+    then use it as prior for CNN to generate a new image.
+    '''
+    y = np.linspace(0.0, 1.0, height)
+    x = np.linspace(0.0, 1.0, width)
+    XX, YY = np.meshgrid(x, y)
+    input_meshgrid = np.concatenate([XX[:,:,np.newaxis], YY[:,:,np.newaxis]], axis=2)
+    return input_meshgrid
