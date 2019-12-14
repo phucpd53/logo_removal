@@ -21,7 +21,7 @@ def reconstruct(y_pred, y_true, mask):
     y_true: input image with logo. SHAPE = [HEIGHT, WIDTH, 3]
     mask: a binary image with logo region is 0, otherwise 1. SHAPE = [HEIGHT, WIDTH, 1]
     '''
-    mask = cv2.gaussian_blur(mask, (3, 3), 0)
+    mask = cv2.GaussianBlur(mask, (3,3), cv2.BORDER_DEFAULT)
     mask_3D = np.dstack([mask, mask, mask])
     return (y_pred * (1 - mask_3D) + y_true * mask_3D).astype(np.uint8)
 
