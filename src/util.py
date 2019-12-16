@@ -8,13 +8,29 @@ def read_video_to_frame(video_path):
     frames = skvideo.io.vread(video_path)
     return frames
 
-def detect_fpt_logo(img, logo_img):
+def detect_logo(img, logo_img, scale=1.1):
     '''
-    @return 
-        mask_img with logo region is 0, otherwise 1. SHAPE = [HEIGHT, WIDTH, 1]
+    scale: scale up bbox x times (default: 1.1 times) to make sure it can cover all logo
+    @return: mask image with 0 including logo region and 1 including others. Shape of [HEIGHT, WIDTH, 1]
     '''
-    res = cv2.matchTemplate(img,logo_img,cv2.TM_SQDIFF)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    best_val = -1
+    ori_h, ori_w = logo_img.shape[:2]
+    for i in range(img.shape[0]//100, img.shape[0] // 2, img.shape[0]//100):
+        h = i
+        w = int(ori_w / ori_h * h)
+        template = cv2.resize(logo_img, (w, h))
+        # Apply template Matching
+        res = cv2.matchTemplate(img,template,cv2.TM_CCORR_NORMED)
+        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+        if max_val >= best_val:
+            best_val = max_val
+            center_x = max_loc[0] + w // 2 
+            center_y = max_loc[1] + h // 2 
+            top_left = (center_x - int(w / 2 * scale), center_y - int(h / 2 * scale))
+            bottom_right = (center_x + int(w / 2 * scale), center_y + int(h / 2 * scale))
+    mask = np.ones((img.shape[:2]), np.uint8)
+    mask[top_left[1] : bottom_right[1], top_left[0] : bottom_right[0]] = 0
+    return mask
 
 # TODO: test the drawing function
 def reconstruct(y_pred, y_true, mask, iteration, loss):

@@ -1,5 +1,6 @@
 imgs/
 input/
+frontend/
 
 __pycache__/
 *.py[cod]

@@ -1,6 +1,6 @@
 import os
 import imageio
-from skimage.transform import resize
+import cv2
 import numpy as np
 from keras.layers import Input, Lambda
 from keras import backend as K
@@ -13,10 +13,11 @@ import config
 
 def run(input_path):
     # input image
-    image = imageio.imread(input_path)
+    image = imageio.imread(input_path, pilmode="RGB")
+    image = cv2.resize(image, (1152, 768))
     HEIGHT, WIDTH = image.shape[:2]
-    mask_image = imageio.imread("input/mask.jpg")
-    mask_image = resize(mask_image, (HEIGHT, WIDTH))
+    logo_img = imageio.imread("input/logo-ft.png", pilmode="RGB")
+    mask_image = util.detect_logo(image, logo_img)
     
     # define model
     target_tensor = Input(shape=(HEIGHT, WIDTH, 3))
@@ -45,4 +46,3 @@ def run(input_path):
             result = util.reconstruct(y_pred=out_img, y_true=y_train, mask=mask_image, iteration=i, loss=res)
             output_path = os.path.join(config.OUT_DIR, "{:05}.jpg".format(i))
             imageio.imwrite(output_path, result)
-            yield output_path
