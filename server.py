@@ -40,11 +40,13 @@ def upload():
         file_path = os.path.join(
             basepath, 'input', secure_filename(f.filename))
         f.save(file_path)
-        # output_path = logo_removal.run(file_path)
-        # return render_template('index.html', reconstructed=output_path)
+
+        thr = threading.Thread(target=fake_run.run, args=[file_path])
+        thr.start()
         
-        # return render_template("image.html", data=fake_run.run())
-        return Response(stream_template('image.html', data=fake_run.run()))
+        # output_path = os.path.join("http://localhost:5000/static/imgs", secure_filename(f.filename))
+        output_path = flask.url_for("static", filename="imgs/{}".format(secure_filename(f.filename)))
+        return output_path
         
     # return None
 

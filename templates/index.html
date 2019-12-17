@@ -16,18 +16,13 @@
             </div>
         </div>
         <div>
-            <button type="button" class="btn btn-primary btn-lg " id="btn-run" onclick="http://localhost:5000/run">Run</button>
+            <button type="button" class="btn btn-primary btn-lg " id="btn-run">Run</button>
         </div>
     </div>
 
     <div class="loader" style="display:none;"></div>
     <div>
         <img id="my_image">
-            {% for im_name in data: %}
-            <script>
-                document.getElementById("my_image").src = 'http://localhost:5000/static/input/logo-ft.png';
-            </script>
-            {% endfor %}
         </img>
     </div>
     
