@@ -38,11 +38,12 @@ def run(input_path):
             x=[x_train[None, :, :, :], y_train[None, :, :, :], mask_image[None, :, :, None]],
             y=np.zeros((1, HEIGHT, WIDTH)), # dummy params. True loss is calculated from x only
         )
-        if i % 100 == 0:
-            print("Iteration: {}, Loss: {}".format(i, res))
-            out_img = base_model.predict(x_train[None, :, :, :], steps=1)[0]
-            out_img = np.clip(out_img, 0, 255).astype(np.uint8)
-            
-            result = util.reconstruct(y_pred=out_img, y_true=y_train, mask=mask_image, iteration=i, loss=res)
-            output_path = os.path.join(config.OUT_DIR, "{:05}.jpg".format(i))
-            imageio.imwrite(output_path, result)
+        # if i % 100 == 0:
+        print("Iteration: {}, Loss: {}".format(i, res))
+        out_img = base_model.predict(x_train[None, :, :, :], steps=1)[0]
+        out_img = np.clip(out_img, 0, 255).astype(np.uint8)
+        
+        result = util.reconstruct(y_pred=out_img, y_true=y_train, mask=mask_image, iteration=i, loss=res)
+        output_path = os.path.join(config.OUT_DIR, "{:05}.jpg".format(i))
+        imageio.imwrite(output_path, result)
+        return output_path

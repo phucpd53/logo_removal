@@ -5,15 +5,23 @@ import flask
 from flask import Flask, request, jsonify, Response, render_template
 # from flask_cors import CORS
 from werkzeug import secure_filename
+from gevent.pywsgi import WSGIServer
 import config
 import logo_removal
+import fake_run
 
 
 # initialize flask server
-app = Flask(__name__, static_folder='static', static_url_path='')
+app = Flask(__name__)
 # cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 # app.config["DEBUG"] = False
 # app.config['JSON_AS_ASCII'] = False
+
+def stream_template(template_name, **context):
+    app.update_template_context(context)
+    t = app.jinja_env.get_template(template_name)
+    rv = t.stream(context)
+    return rv
 
 # index page here, just return some html
 @app.route('/', methods=['GET'])
@@ -21,7 +29,7 @@ def index():
     # Main page
     return render_template('index.html')
 
-@app.route('/run', methods=['GET', 'POST'])
+@app.route('/run', methods=['POST'])
 def upload():
     if request.method == 'POST':
         # Get the file from post request
@@ -32,10 +40,13 @@ def upload():
         file_path = os.path.join(
             basepath, 'input', secure_filename(f.filename))
         f.save(file_path)
-        logo_removal.run(file_path)
-        return "OK"
+        # output_path = logo_removal.run(file_path)
+        # return render_template('index.html', reconstructed=output_path)
         
-    return None
+        # return render_template("image.html", data=fake_run.run())
+        return Response(stream_template('image.html', data=fake_run.run()))
+        
+    # return None
 
 @app.after_request
 def after_request(response):
@@ -45,4 +56,5 @@ def after_request(response):
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    http_server = WSGIServer(('0.0.0.0', 5000), app)
+    http_server.serve_forever()

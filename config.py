@@ -3,4 +3,4 @@ IMAGE_UPLOAD_PATH = "input"
 INPUT_DIM = 2
 LEARNING_RATE = 0.01
 INPUT_SHAPE=[768, 1152, 2]
-OUT_DIR = "imgs"
+OUT_DIR = "static/imgs"
