@@ -2,14 +2,13 @@ import os
 import sys
 import threading
 import flask
-from flask import Flask, request, jsonify, Response, render_template
+from flask import Flask, request, jsonify, Response, render_template, stream_with_context
 # from flask_cors import CORS
 from werkzeug import secure_filename
 from gevent.pywsgi import WSGIServer
 import config
 import logo_removal
 import fake_run
-
 
 # initialize flask server
 app = Flask(__name__)
@@ -29,27 +28,17 @@ def index():
     # Main page
     return render_template('index.html')
 
-@app.route('/run', methods=['POST'])
+@app.route('/run', methods=['GET', 'POST'])
 def upload():
-    if request.method == 'POST':
-        # Get the file from post request
-        f = request.files['image']
+    # Get the file from post request
+    f = request.files['image']
 
-        # Save the file to ./uploads
-        basepath = os.path.dirname(__file__)
-        file_path = os.path.join(
-            basepath, 'input', secure_filename(f.filename))
-        f.save(file_path)
-
-        thr = threading.Thread(target=fake_run.run, args=[file_path])
-        thr.start()
-        
-        # output_path = os.path.join("http://localhost:5000/static/imgs", secure_filename(f.filename))
-        output_path = flask.url_for("static", filename="imgs/{}".format(secure_filename(f.filename)))
-        return output_path
-        
-    # return None
-
+    basepath = os.path.dirname(__file__)
+    file_path = os.path.join(
+        basepath, 'input', secure_filename(f.filename))
+    f.save(file_path)
+    return Response(logo_removal.run(file_path), mimetype='multipart/x-mixed-replace; boundary=frame')
+    
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')

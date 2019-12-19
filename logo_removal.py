@@ -6,6 +6,9 @@ from keras.layers import Input, Lambda
 from keras import backend as K
 from keras.models import Model, load_model
 from keras.optimizers import Adam
+import time
+import io
+import matplotlib.pyplot as plt
 
 from src import model_class
 from src import util
@@ -33,6 +36,7 @@ def run(input_path):
     res = 1000
     i = 0
     while res > 100:
+        buf = io.BytesIO()
         i += 1
         res = model.train_on_batch(
             x=[x_train[None, :, :, :], y_train[None, :, :, :], mask_image[None, :, :, None]],
@@ -44,6 +48,8 @@ def run(input_path):
         out_img = np.clip(out_img, 0, 255).astype(np.uint8)
         
         result = util.reconstruct(y_pred=out_img, y_true=y_train, mask=mask_image, iteration=i, loss=res)
-        output_path = os.path.join(config.OUT_DIR, "{:05}.jpg".format(i))
-        imageio.imwrite(output_path, result)
-        return output_path
+        plt.imsave(buf, result)
+        time.sleep(1)
+        # yield "{:05}.jpg".format(i)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + buf.getvalue() + b'\r\n')
