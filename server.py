@@ -16,6 +16,8 @@ app = Flask(__name__)
 # app.config["DEBUG"] = False
 # app.config['JSON_AS_ASCII'] = False
 
+global file_path
+
 def stream_template(template_name, **context):
     app.update_template_context(context)
     t = app.jinja_env.get_template(template_name)
@@ -28,8 +30,9 @@ def index():
     # Main page
     return render_template('index.html')
 
-@app.route('/run', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    global file_path
     # Get the file from post request
     f = request.files['image']
 
@@ -37,7 +40,12 @@ def upload():
     file_path = os.path.join(
         basepath, 'input', secure_filename(f.filename))
     f.save(file_path)
-    return Response(logo_removal.run(file_path), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return render_template('image.html')
+
+@app.route('/streaming')
+def streaming():
+    global file_path
+    return Response(fake_run.run(file_path), mimetype='multipart/x-mixed-replace; boundary=frame')
     
 @app.after_request
 def after_request(response):

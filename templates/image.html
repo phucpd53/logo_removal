@@ -1,1 +1,19 @@
-<img id="my_image" src="http://localhost:5000/static/input/Picture1.png">
+{% extends "base.html" %} {% block content %}
+
+<script src="{{ url_for('static', filename='js/image.js') }}" type="text/javascript"></script>    
+
+<h2>This will takes a few minutes. Go taking a cup of coffee</h2>
+<div>
+    <div class="badge badge-info" id="loading-badge">Loading...</div>
+    <div>
+        <img id="result" src="{{ url_for('streaming') }}">
+    </div>
+    <form action="/" id="hidden-div" style="display: none;">
+        <button id="stop-button" type="submit" class="btn btn-primary">STOP</button>
+        <span class="badge">
+            click when you feel this is good enough
+        </span>
+    </form>
+</div>
+
+{% endblock %}
