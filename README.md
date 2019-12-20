@@ -10,6 +10,6 @@ Input an image with an FPT Logo on it, remove the logo and return new image with
   * Check memory leak
 * Dev front end
   * ~Just simple front end~ DONE
-  * Re-design web page
+  * ~Re-design web page~ DONE
   * Add descriptions for method explanation
   * Design user-oriented process flow
