@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    /* js for index.html */
+    /****************************************************/
     // Init
     $('.img-preview').hide();
     $('#btn-run').hide();
@@ -20,5 +22,5 @@ $(document).ready(function () {
         $('#btn-run').show();
         readURL(this);
     });
-
+    
 });
