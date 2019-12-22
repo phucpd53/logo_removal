@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, Response, render_template, stream_wit
 from werkzeug import secure_filename
 from gevent.pywsgi import WSGIServer
 import config
-import logo_removal
+from logo_removal import Logo_removal
 import fake_run
 
 # initialize flask server
@@ -17,6 +17,7 @@ app = Flask(__name__)
 # app.config['JSON_AS_ASCII'] = False
 
 global file_path
+global remover
 
 def stream_template(template_name, **context):
     app.update_template_context(context)
@@ -33,6 +34,7 @@ def index():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     global file_path
+    global remover
     # Get the file from post request
     f = request.files['image']
 
@@ -40,12 +42,15 @@ def upload():
     file_path = os.path.join(
         basepath, 'input', secure_filename(f.filename))
     f.save(file_path)
+    remover = Logo_removal(file_path)
     return render_template('image.html')
 
 @app.route('/streaming')
 def streaming():
     global file_path
     return Response(fake_run.run(file_path), mimetype='multipart/x-mixed-replace; boundary=frame')
+    global remover
+    return Response(remover.start(), mimetype='multipart/x-mixed-replace; boundary=frame')
     
 @app.after_request
 def after_request(response):
