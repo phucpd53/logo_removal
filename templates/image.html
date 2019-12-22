@@ -8,12 +8,14 @@
     <div>
         <img id="result" src="{{ url_for('streaming') }}">
     </div>
-    <form action="/" id="hidden-div" style="display: none;">
-        <button id="stop-button" type="submit" class="btn btn-primary">STOP</button>
+    <div class="loader" style="display:none;">
+    </div>
+    <div id="hidden-div" style="display: none;">
+        <a id="stop-button" href="{{ url_for('static', filename='imgs/result.jpg') }}" download="logo_removal.jpg" class="btn btn-primary">STOP</a>
         <span class="badge">
             click when you feel this is good enough
         </span>
-    </form>
+    </div>
 </div>
 
 {% endblock %}

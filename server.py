@@ -9,6 +9,7 @@ from gevent.pywsgi import WSGIServer
 import config
 from logo_removal import Logo_removal
 import fake_run
+from keras import backend as K
 
 # initialize flask server
 app = Flask(__name__)
@@ -47,11 +48,20 @@ def upload():
 
 @app.route('/streaming')
 def streaming():
-    global file_path
-    return Response(fake_run.run(file_path), mimetype='multipart/x-mixed-replace; boundary=frame')
     global remover
-    return Response(remover.start(), mimetype='multipart/x-mixed-replace; boundary=frame')
-    
+#     return Response(fake_run.run(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(remover._run(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/force_stop', methods=['POST'])
+def stop():
+    print("hoge");
+    K.clear_session()
+    return Response({'hoge':'hage'})
+
+# @app.route('/stop', methods=['GET'])
+# def stop_streaming():
+#     return render_template('index.html')
+
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')

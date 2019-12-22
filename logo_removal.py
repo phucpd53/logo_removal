@@ -17,18 +17,16 @@ from threading import Thread
 
 class Logo_removal:
     def __init__(self, file_path):
-        self.thread = Thread(target=self._run, args=[file_path])
-    def start(self):
-        self.thread.start()
-    def stop(self):
-        self.thread.stop()
-    def _run(input_path):
+        self.file_path = file_path
+    def _run(self):
         # input image
-        image = imageio.imread(input_path, pilmode="RGB")
+        image = imageio.imread(self.file_path, pilmode="RGB")
         image = cv2.resize(image, (1152, 768))
         HEIGHT, WIDTH = image.shape[:2]
         logo_img = imageio.imread("input/logo-ft.png", pilmode="RGB")
         mask_image = util.detect_logo(image, logo_img)
+        if config.DEBUG:
+            imageio.imwrite("mask.png", mask_image * 255)
 
         # define model
         target_tensor = Input(shape=(HEIGHT, WIDTH, 3))
@@ -54,10 +52,10 @@ class Logo_removal:
                 print("Iteration: {}, Loss: {}".format(i, res))
                 out_img = base_model.predict(x_train[None, :, :, :], steps=1)[0]
                 out_img = np.clip(out_img, 0, 255).astype(np.uint8)
-
+                
                 result = util.reconstruct(y_pred=out_img, y_true=y_train, mask=mask_image, iteration=i, loss=res)
                 plt.imsave(buf, result)
+                imageio.imwrite(os.path.join(config.OUT_DIR, "result.jpg"), result[:HEIGHT, :WIDTH, :])
                 time.sleep(1)
-                # yield "{:05}.jpg".format(i)
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + buf.getvalue() + b'\r\n')

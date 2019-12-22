@@ -1,4 +1,5 @@
 IMAGE_UPLOAD_PATH = "input"
+DEBUG = True
 
 INPUT_DIM = 2
 LEARNING_RATE = 0.01
